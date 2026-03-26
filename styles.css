@@ -1,0 +1,18 @@
+.data-rot-block {
+    position: absolute;
+    background: black; 
+    z-index: 999999;   
+    pointer-events: none; 
+    opacity: 0.9;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+@keyframes flicker {
+    0% { opacity: 0.8; }
+    50% { opacity: 1; }
+    100% { opacity: 0.9; }
+}
+
+.data-rot-block.glitch {
+    animation: flicker 0.1s infinite;
+}
