@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Data Rot",
     "version": "1.0",
-    "description": "Visualizing the surveillance cookies of the modern web.",
+    "description": "Visualizing the surveillance tax of the modern web.",
     "icons": {
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
@@ -23,6 +23,12 @@
         "matches": ["<all_urls>"],
         "css": ["styles.css"],
         "js": ["content.js"]
+      }
+    ],
+    "web_accessible_resources": [
+      {
+        "resources": ["images/*.png"],
+        "matches": ["<all_urls>"]
       }
     ]
   }

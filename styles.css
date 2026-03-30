@@ -16,3 +16,20 @@
 .data-rot-block.glitch {
     animation: flicker 0.1s infinite;
 }
+
+.data-rot-cookie {
+    position: absolute;
+    z-index: 2147483647;   
+    pointer-events: none;  
+    opacity: 0.95;
+    
+    filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.6));
+    
+    /* A quick animation so they "pop" onto the screen */
+    animation: cookie-pop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes cookie-pop {
+    0% { transform: scale(0); opacity: 0; }
+    100% { opacity: 0.95; } 
+}
