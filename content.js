@@ -7,11 +7,29 @@ const cookieImages = [
   "images/cookie4.png",
 ]
 
+let trackerCount = 0; 
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "TRACKER_DETECTED") {
-    injectCookie();
+    trackerCount++;      // Increment the count
+    updateCounterUI();   // Update the number on screen
+    injectCookie();      // Drop the cookie
   }
 });
+
+function updateCounterUI() {
+  let counter = document.getElementById('data-rot-counter');
+  
+  // If the counter doesn't exist on the page yet, build it
+  if (!counter) {
+    counter = document.createElement('div');
+    counter.id = 'data-rot-counter';
+    document.body.appendChild(counter);
+  }
+  
+  // Update the text with the current count
+  counter.innerText = `SURVEILLANCE COOKIES: ${trackerCount}`;
+}
 
 function injectRot() {
     const rot = document.createElement('div');

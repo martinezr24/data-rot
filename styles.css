@@ -19,7 +19,7 @@
 
 .data-rot-cookie {
     position: absolute;
-    z-index: 2147483647;   
+    z-index: 2147483646;   
     pointer-events: none;  
     opacity: 0.95;
     
@@ -32,4 +32,22 @@
 @keyframes cookie-pop {
     0% { transform: scale(0); opacity: 0; }
     100% { opacity: 0.95; } 
+}
+
+#data-rot-counter {
+    position: fixed; /* Keeps it locked to the screen while scrolling */
+    top: 20px;
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.85);
+    color: #ff3333; /* Aggressive warning red */
+    font-family: 'Courier New', Courier, monospace; /* Terminal aesthetic */
+    font-size: 24px;
+    font-weight: bold;
+    padding: 15px 25px;
+    border: 2px solid #ff3333;
+    border-radius: 4px;
+    z-index: 2147483647; /* Sits on top of the cookies */
+    pointer-events: none; /* Allows you to click links underneath it */
+    box-shadow: 0px 4px 15px rgba(255, 51, 51, 0.4);
+    backdrop-filter: blur(5px); /* Slightly blurs the page behind the box */
 }
