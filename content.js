@@ -8,12 +8,35 @@ const cookieImages = [
 ]
 
 let trackerCount = 0; 
+let currentMode = "cookies"; // Default mode
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+// Get the initial mode when page loads
+chrome.storage.local.get(['rotMode'], (result) => {
+  if (result.rotMode) {
+    currentMode = result.rotMode;
+  }
+});
+
+// Listen for live changes (so you can switch modes without refreshing the page)
+chrome.storage.onChanged.addListener((changes) => {
+  if (changes.rotMode) {
+    currentMode = changes.rotMode.newValue;
+    console.log("Mode switched to:", currentMode);
+  }
+});
+
+// Listen for the tracker signal
+chrome.runtime.onMessage.addListener((message) => {
   if (message.type === "TRACKER_DETECTED") {
-    trackerCount++;      // Increment the count
-    updateCounterUI();   // Update the number on screen
-    injectCookie();      // Drop the cookie
+    trackerCount++;      
+    updateCounterUI();   
+    
+    // Inject based on the current toggle setting
+    if (currentMode === "cookies") {
+      injectCookie();      
+    } else if (currentMode === "blackout") {
+      injectBlackout();
+    }
   }
 });
 
@@ -31,78 +54,45 @@ function updateCounterUI() {
   counter.innerText = `SURVEILLANCE COOKIES: ${trackerCount}`;
 }
 
-function injectRot() {
-    const rot = document.createElement('div');
-    rot.className = 'data-rot-block glitch';
-    
-    // Randomize size
-    const size = Math.floor(Math.random() * 150) + 50; // 50px to 200px
-    rot.style.width = size + 'px';
-    rot.style.height = size + 'px';
-    
-    // Randomize position on the screen
-    const posX = Math.floor(Math.random() * window.innerWidth);
-    const posY = Math.floor(Math.random() * (document.documentElement.scrollHeight));
-    
-    rot.style.left = posX + 'px';
-    rot.style.top = posY + 'px';
-    
-    document.body.appendChild(rot);
-  }
-
+// Inject a Cookie
 function injectCookie() {
   const img = document.createElement('img');
   img.className = 'data-rot-cookie';
   
-  // Randomly select a cookie from the array
   const randomImage = cookieImages[Math.floor(Math.random() * cookieImages.length)];
-  
-  // You MUST use getURL to translate the local path to a Chrome extension path
   img.src = chrome.runtime.getURL(randomImage);
   
-  // Randomize size (between 60px and 200px)
   const size = Math.floor(Math.random() * 140) + 60; 
   img.style.width = size + 'px';
-  img.style.height = 'auto'; // Maintains the image's aspect ratio
+  img.style.height = 'auto'; 
   
-  // Randomize position across the entire scrollable document
-  const posX = Math.floor(Math.random() * window.innerWidth);
-  const posY = Math.floor(Math.random() * document.documentElement.scrollHeight);
+  positionElementRandomly(img, size);
   
-  img.style.left = (posX - (size / 2)) + 'px';
-  img.style.top = (posY - (size / 2)) + 'px';
-  
-  // Apply a random rotation for maximum chaos
   const rotation = Math.floor(Math.random() * 360);
   img.style.transform = `rotate(${rotation}deg)`;
   
   document.body.appendChild(img);
 }
 
-function injectCookie() {
-  const img = document.createElement('img');
-  img.className = 'data-rot-cookie';
+// Inject a Blackout Square
+function injectBlackout() {
+  const square = document.createElement('div');
+  square.className = 'data-rot-block glitch'; 
   
-  // Randomly select a cookie from the array
-  const randomImage = cookieImages[Math.floor(Math.random() * cookieImages.length)];
+  const size = Math.floor(Math.random() * 150) + 50; 
+  square.style.width = size + 'px';
+  square.style.height = size + 'px';
   
-  img.src = chrome.runtime.getURL(randomImage);
+  positionElementRandomly(square, size);
   
-  // Randomize size (between 60px and 200px)
-  const size = Math.floor(Math.random() * 140) + 60; 
-  img.style.width = size + 'px';
-  img.style.height = 'auto'; 
-  
-  // Randomize position across the entire scrollable document
+  document.body.appendChild(square);
+}
+
+// Helper function to handle random positioning for both shapes
+function positionElementRandomly(element, size) {
   const posX = Math.floor(Math.random() * window.innerWidth);
   const posY = Math.floor(Math.random() * document.documentElement.scrollHeight);
   
-  img.style.left = (posX - (size / 2)) + 'px';
-  img.style.top = (posY - (size / 2)) + 'px';
-  
-  // Apply a random rotation for maximum chaos
-  const rotation = Math.floor(Math.random() * 360);
-  img.style.transform = `rotate(${rotation}deg)`;
-  
-  document.body.appendChild(img);
+  element.style.left = (posX - (size / 2)) + 'px';
+  element.style.top = (posY - (size / 2)) + 'px';
 }
