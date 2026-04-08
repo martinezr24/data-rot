@@ -1,48 +1,98 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <style>
-    body {
-      font-family: 'Courier New', Courier, monospace;
-      width: 200px;
-      padding: 15px;
-      background-color: #111;
-      color: #fff;
-    }
-    h3 {
-      margin-top: 0;
-      color: #ff3333;
-      font-size: 16px;
-      text-transform: uppercase;
-      border-bottom: 1px solid #ff3333;
-      padding-bottom: 5px;
-    }
-    .radio-group {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 15px;
-    }
-    label {
-      cursor: pointer;
-      font-size: 14px;
-    }
-  </style>
-</head>
-<body>
-  <h3>Rot Settings</h3>
-  
-  <div class="radio-group">
-    <label>
-      <input type="radio" name="mode" value="cookies" checked>
-      Surveillance Cookies
-    </label>
-    <label>
-      <input type="radio" name="mode" value="blackout">
-      Blackout Squares
-    </label>
-  </div>
+  <head>
+    <style>
+      body {
+        font-family: "Courier New", Courier, monospace;
+        width: 200px;
+        padding: 15px;
+        background-color: #111;
+        color: #fff;
+      }
+      h3 {
+        margin-top: 0;
+        color: #ff3333;
+        font-size: 16px;
+        text-transform: uppercase;
+        border-bottom: 1px solid #ff3333;
+        padding-bottom: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
 
-  <script src="popup.js"></script>
-</body>
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 40px;
+        height: 20px;
+      }
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #555;
+        transition: 0.2s;
+        border-radius: 20px;
+      }
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 14px;
+        width: 14px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.2s;
+        border-radius: 50%;
+      }
+      input:checked + .slider {
+        background-color: #ff3333;
+      }
+      input:checked + .slider:before {
+        transform: translateX(20px);
+      }
+
+      .radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 15px;
+      }
+      label.radio-label {
+        cursor: pointer;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>
+      Data Rot
+      <label class="switch" title="Toggle System On/Off">
+        <input type="checkbox" id="power-switch" />
+        <span class="slider"></span>
+      </label>
+    </h3>
+
+    <div class="radio-group">
+      <label class="radio-label"
+        ><input type="radio" name="mode" value="cookies" /> Surveillance
+        Cookies</label
+      >
+      <label class="radio-label"
+        ><input type="radio" name="mode" value="blackout" /> Blackout
+        Squares</label
+      >
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
 </html>

@@ -22,46 +22,48 @@ chrome.storage.local.get(["rotMode"], (result) => {
 chrome.storage.onChanged.addListener((changes) => {
   if (changes.rotMode) {
     currentMode = changes.rotMode.newValue;
-    console.log("Mode switched to:", currentMode);
-
     clearRot();
   }
-});
-
-// Listen for the tracker signal
-chrome.runtime.onMessage.addListener((message) => {
-  if (message.type === "TRACKER_DETECTED") {
-    trackerCount++;
-
-    // Tally the specific tracker domain
-    const name = message.trackerName;
-    trackerStats[name] = (trackerStats[name] || 0) + 1;
-
-    updateCounterUI();
-
-    // Inject based on the current toggle setting
-    if (currentMode === "cookies") {
-      injectCookie();
-    } else if (currentMode === "blackout") {
-      injectBlackout();
+  if (changes.isActive !== undefined) {
+    if (changes.isActive.newValue === false) {
+      clearRot(); // Instantly wipe the screen if toggled off
     }
   }
 });
 
+chrome.runtime.onMessage.addListener((message) => {
+  // Check if system is active before injecting
+  chrome.storage.local.get(["isActive"], (result) => {
+    if (result.isActive === false) return;
+
+    if (message.type === "TRACKER_DETECTED") {
+      trackerCount++;
+      const name = message.trackerName;
+      trackerStats[name] = (trackerStats[name] || 0) + 1;
+      updateCounterUI();
+
+      // Pass the payload to the inject functions!
+      if (currentMode === "cookies") {
+        injectCookie(message.payload, name);
+      } else if (currentMode === "blackout") {
+        injectBlackout(message.payload, name);
+      }
+    }
+  });
+});
+
 // Clears all previous rot on screen if switched modes
 function clearRot() {
-  // Find all cookies and blackout blocks currently on the page
   const existingRot = document.querySelectorAll(
     ".data-rot-cookie, .data-rot-block",
   );
-
-  // Remove each one from the DOM
   existingRot.forEach((element) => element.remove());
 
-  // Reset the counter to 0 and update the UI
   trackerCount = 0;
   trackerStats = {};
-  updateCounterUI();
+
+  const counterBox = document.getElementById("data-rot-counter-box");
+  if (counterBox) counterBox.remove(); // Remove the UI completely
 }
 
 function updateCounterUI() {
