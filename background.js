@@ -142,9 +142,27 @@ chrome.webRequest.onBeforeRequest.addListener(
       let paramCount = 0;
 
       for (let [key, value] of params) {
+        let cleanValue =
+          value.trim() === "" ? "[ BLANK / NOT PROVIDED ]" : value;
+
         let shortVal =
-          value.length > 50 ? value.substring(0, 50) + "..." : value;
+          cleanValue.length > 50
+            ? cleanValue.substring(0, 50) + "..."
+            : cleanValue;
         let lowerKey = key.toLowerCase();
+
+        if (lowerKey === "us_privacy") {
+          const upCaseVal = cleanValue.toUpperCase();
+          if (upCaseVal === "1YYY") {
+            shortVal = `${cleanValue} -> [ ALERT: USER EXPLICITLY OPTED OUT, BUT EXTRACTION CONTINUED ]`;
+          } else if (upCaseVal === "1YNN" || upCaseVal === "1YNY") {
+            shortVal = `${cleanValue} -> [ TRACKER CLAIMS USER CONSENTED TO DATA SALE ]`;
+          } else if (upCaseVal.includes("-")) {
+            shortVal = `${cleanValue} -> [ PRIVACY LAWS NOT APPLIED TO THIS TARGET ]`;
+          } else {
+            shortVal = `${cleanValue} -> [ RAW PRIVACY STRING ]`;
+          }
+        }
 
         // Check if we have a plain-English translation for this data point
         if (dataTranslator[lowerKey]) {
