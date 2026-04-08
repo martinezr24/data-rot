@@ -74,3 +74,20 @@
 #data-rot-details {
   user-select: none;
 }
+
+#data-rot-tooltip {
+  position: fixed;
+  background-color: #000;
+  color: #00ff00;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 12px;
+  padding: 10px;
+  border: 1px solid #00ff00;
+  z-index: 2147483647;
+  pointer-events: none;
+  white-space: pre-wrap;
+  max-width: 400px;
+  box-shadow: 0px 0px 10px rgba(0, 255, 0, 0.3);
+  word-break: break-all;
+  display: none;
+}

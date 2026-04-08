@@ -116,7 +116,7 @@ function updateCounterUI() {
 }
 
 // Inject a Cookie
-function injectCookie() {
+function injectCookie(payload, trackerName) {
   const img = document.createElement("img");
   img.className = "data-rot-cookie";
 
@@ -133,11 +133,19 @@ function injectCookie() {
   const rotation = Math.floor(Math.random() * 360);
   img.style.transform = `rotate(${rotation}deg)`;
 
+  // Add the data payload to the element
+  img.dataset.payload = `[INTERCEPTED: ${trackerName.toUpperCase()}]\n${payload}`;
+
+  // Add hover effects for the tooltip
+  img.style.pointerEvents = "auto";
+  img.addEventListener("mouseenter", showDataTooltip);
+  img.addEventListener("mouseleave", hideDataTooltip);
+
   document.body.appendChild(img);
 }
 
 // Inject a Blackout Square
-function injectBlackout() {
+function injectBlackout(payload, trackerName) {
   const square = document.createElement("div");
   square.className = "data-rot-block glitch";
 
@@ -147,7 +155,45 @@ function injectBlackout() {
 
   positionElementRandomly(square, size);
 
+  // Add the data payload to the element
+  square.dataset.payload = `[INTERCEPTED: ${trackerName.toUpperCase()}]\n${payload}`;
+
+  // Add hover effects for the tooltip
+  square.style.pointerEvents = "auto";
+  square.addEventListener("mouseenter", showDataTooltip);
+  square.addEventListener("mouseleave", hideDataTooltip);
+
   document.body.appendChild(square);
+}
+
+function showDataTooltip(e) {
+  let tooltip = document.getElementById("data-rot-tooltip");
+  if (!tooltip) {
+    tooltip = document.createElement("div");
+    tooltip.id = "data-rot-tooltip";
+    document.body.appendChild(tooltip);
+  }
+
+  tooltip.innerText = e.target.dataset.payload;
+  tooltip.style.display = "block";
+
+  // Track mouse movement to lock the tooltip to the cursor
+  document.addEventListener("mousemove", moveTooltip);
+}
+
+function hideDataTooltip() {
+  const tooltip = document.getElementById("data-rot-tooltip");
+  if (tooltip) {
+    tooltip.style.display = "none";
+    document.removeEventListener("mousemove", moveTooltip);
+  }
+}
+
+function moveTooltip(e) {
+  const tooltip = document.getElementById("data-rot-tooltip");
+  // Offset slightly from the cursor so it doesn't block the mouse
+  tooltip.style.left = e.clientX + 15 + "px";
+  tooltip.style.top = e.clientY + 15 + "px";
 }
 
 // Helper function to handle random positioning for both shapes
