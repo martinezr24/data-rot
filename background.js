@@ -9,6 +9,23 @@ const trackerKeywords = [
   "amazon-adsystem.com",
 ];
 
+const dataTranslator = {
+  turl: "Page You Are Currently Reading",
+  sid: "Surveillance Network Index",
+  gdpr: "EU Privacy Protection Active (0 = NO)",
+  gdpr_consent: "Did you consent to this?",
+  tagtype: "Media Type Watching You",
+  c2: "Your Browser Window Width",
+  c3: "Your Browser Window Height",
+  ppid: "Your Unique Profile ID",
+  crt: "Your Demographic Cohort Bucket",
+  cid: "Unique Device Identifier",
+  sr: "Your Screen Resolution",
+  ul: "Your System Language",
+  dt: "Page Title",
+  v: "Tracker Version",
+};
+
 let isActive = true;
 
 // Keep track of the power switch state
@@ -39,23 +56,37 @@ chrome.webRequest.onBeforeRequest.addListener(
       const urlObj = new URL(url);
       const params = new URLSearchParams(urlObj.search);
 
-      // Build a readable string of the exact variables they are stealing
-      let payloadData = "";
+      let humanReadable = "";
+      let rawTelemetry = "";
       let paramCount = 0;
+
       for (let [key, value] of params) {
-        // Truncate massively long values so it fits on screen
         let shortVal =
           value.length > 50 ? value.substring(0, 50) + "..." : value;
-        payloadData += `> ${key}: ${shortVal}\n`;
+        let lowerKey = key.toLowerCase();
+
+        // Check if we have a plain-English translation for this data point
+        if (dataTranslator[lowerKey]) {
+          humanReadable += `[!] ${dataTranslator[lowerKey]}:\n    ${shortVal}\n`;
+        } else {
+          rawTelemetry += `> ${key}: ${shortVal}\n`;
+        }
         paramCount++;
       }
 
-      // If there are no obvious URL parameters, just show the destination path
+      // Construct the final payload to send to the screen
+      let payloadData = "";
+      if (humanReadable.length > 0) {
+        payloadData += `--- TRANSLATED EXTRACTS ---\n${humanReadable}\n`;
+      }
+      if (rawTelemetry.length > 0) {
+        payloadData += `--- OBFUSCATED RAW DATA ---\n${rawTelemetry}`;
+      }
+
       if (paramCount === 0) {
         payloadData = `> TARGET: ${urlObj.pathname}`;
       }
 
-      // Send the specific tracker name to the content script
       chrome.tabs
         .sendMessage(details.tabId, {
           type: "TRACKER_DETECTED",
