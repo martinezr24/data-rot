@@ -80,7 +80,7 @@ chrome.webRequest.onBeforeRequest.addListener(
         payloadData += `--- TRANSLATED EXTRACTS ---\n${humanReadable}\n`;
       }
       if (rawTelemetry.length > 0) {
-        payloadData += `--- OBFUSCATED RAW DATA ---\n${rawTelemetry}`;
+        payloadData += `--- RAW DATA ---\n${rawTelemetry}`;
       }
 
       if (paramCount === 0) {

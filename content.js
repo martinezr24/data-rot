@@ -133,13 +133,17 @@ function injectCookie(payload, trackerName) {
   const rotation = Math.floor(Math.random() * 360);
   img.style.transform = `rotate(${rotation}deg)`;
 
-  // Add the data payload to the element
   img.dataset.payload = `[INTERCEPTED: ${trackerName.toUpperCase()}]\n${payload}`;
-
-  // Add hover effects for the tooltip
   img.style.pointerEvents = "auto";
-  img.addEventListener("mouseenter", showDataTooltip);
-  img.addEventListener("mouseleave", hideDataTooltip);
+
+  img.addEventListener("mouseenter", showHoverPrompt);
+  img.addEventListener("mouseleave", hideHoverPrompt);
+
+  img.addEventListener("click", (e) => {
+    e.stopPropagation();
+    hideHoverPrompt(e); // Hide the prompt when they actually click!
+    openDataTerminal(e.target.dataset.payload);
+  });
 
   document.body.appendChild(img);
 }
@@ -155,45 +159,48 @@ function injectBlackout(payload, trackerName) {
 
   positionElementRandomly(square, size);
 
-  // Add the data payload to the element
   square.dataset.payload = `[INTERCEPTED: ${trackerName.toUpperCase()}]\n${payload}`;
-
-  // Add hover effects for the tooltip
   square.style.pointerEvents = "auto";
-  square.addEventListener("mouseenter", showDataTooltip);
-  square.addEventListener("mouseleave", hideDataTooltip);
+
+  ssquare.addEventListener("mouseenter", showHoverPrompt);
+  square.addEventListener("mouseleave", hideHoverPrompt);
+
+  square.addEventListener("click", (e) => {
+    e.stopPropagation();
+    hideHoverPrompt(e); // Hide the prompt when they actually click!
+    openDataTerminal(e.target.dataset.payload);
+  });
 
   document.body.appendChild(square);
 }
 
-function showDataTooltip(e) {
-  let tooltip = document.getElementById("data-rot-tooltip");
-  if (!tooltip) {
-    tooltip = document.createElement("div");
-    tooltip.id = "data-rot-tooltip";
-    document.body.appendChild(tooltip);
+// Click-to-Inspect Terminal Functions
+function openDataTerminal(payloadData) {
+  let terminal = document.getElementById("data-rot-terminal");
+
+  // Build the terminal if it doesn't exist
+  if (!terminal) {
+    terminal = document.createElement("div");
+    terminal.id = "data-rot-terminal";
+
+    // Build the Close Button header
+    const header = document.createElement("div");
+    header.id = "data-rot-terminal-header";
+    header.innerText = "[X] CLOSE";
+    header.onclick = () => (terminal.style.display = "none");
+
+    // Build the scrollable content area
+    const content = document.createElement("div");
+    content.id = "data-rot-terminal-content";
+
+    terminal.appendChild(header);
+    terminal.appendChild(content);
+    document.body.appendChild(terminal);
   }
 
-  tooltip.innerText = e.target.dataset.payload;
-  tooltip.style.display = "block";
-
-  // Track mouse movement to lock the tooltip to the cursor
-  document.addEventListener("mousemove", moveTooltip);
-}
-
-function hideDataTooltip() {
-  const tooltip = document.getElementById("data-rot-tooltip");
-  if (tooltip) {
-    tooltip.style.display = "none";
-    document.removeEventListener("mousemove", moveTooltip);
-  }
-}
-
-function moveTooltip(e) {
-  const tooltip = document.getElementById("data-rot-tooltip");
-  // Offset slightly from the cursor so it doesn't block the mouse
-  tooltip.style.left = e.clientX + 15 + "px";
-  tooltip.style.top = e.clientY + 15 + "px";
+  // Inject the data and show the terminal
+  document.getElementById("data-rot-terminal-content").innerText = payloadData;
+  terminal.style.display = "flex"; // Use flex so the header stays at top
 }
 
 // Helper function to handle random positioning for both shapes
@@ -205,4 +212,37 @@ function positionElementRandomly(element, size) {
 
   element.style.left = posX - size / 2 + "px";
   element.style.top = posY - size / 2 + "px";
+}
+
+// NEW: Hover Prompt Functions
+function showHoverPrompt(e) {
+  let prompt = document.getElementById("data-rot-hover-prompt");
+  if (!prompt) {
+    prompt = document.createElement("div");
+    prompt.id = "data-rot-hover-prompt";
+    prompt.innerText = "[ CLICK TO INSPECT ]";
+    document.body.appendChild(prompt);
+  }
+  prompt.style.display = "block";
+  prompt.style.left = e.clientX + 15 + "px";
+  prompt.style.top = e.clientY + 15 + "px";
+
+  // Lock the prompt to the mouse movement
+  e.target.addEventListener("mousemove", moveHoverPrompt);
+}
+
+function hideHoverPrompt(e) {
+  const prompt = document.getElementById("data-rot-hover-prompt");
+  if (prompt) {
+    prompt.style.display = "none";
+    e.target.removeEventListener("mousemove", moveHoverPrompt);
+  }
+}
+
+function moveHoverPrompt(e) {
+  const prompt = document.getElementById("data-rot-hover-prompt");
+  if (prompt) {
+    prompt.style.left = e.clientX + 15 + "px";
+    prompt.style.top = e.clientY + 15 + "px";
+  }
 }
